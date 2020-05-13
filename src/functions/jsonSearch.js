@@ -1,18 +1,16 @@
-export const findObj = async (store, id, section_index) => {
+export const findObj = async (store, id) => {
     let obj;
-    
-    if (section_index) {
-        return obj = await Promise.resolve(searchJSON(store[section_index], id))
-    } else if (store.length > 1) {  
+    if (store.length > 1) {  
         for (const section of store) {
             obj = await Promise.resolve(searchJSON(section, id))
             if (obj) {
-                return obj;
+                break;
             }
         }   
     } else {
-        return obj = await Promise.resolve(searchJSON(store[0], id))
+        obj = await Promise.resolve(searchJSON(store[0], id))
     }
+    return obj
 }
 
 function searchJSON(tree, target) {

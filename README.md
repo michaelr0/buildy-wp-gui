@@ -1,14 +1,29 @@
-This package is intended to be used as the GUI portion of [Buildy for WP](https://github.com/michaelr0/buildy-wp)
+# slim-buildy
 
-### Changelog
+## Project setup
+```
+yarn install
+```
 
-Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
+### Compiles and hot-reloads for development
+```
+yarn serve
+```
 
-## Credits
+### Compiles and minifies for production
+```
+yarn build
+```
 
-- [Michael Rook](https://github.com/michaelr0)
-- [All Contributors](../../contributors)
+### Run your unit tests
+```
+yarn test:unit
+```
 
-## License
+### Lints and fixes files
+```
+yarn lint
+```
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).

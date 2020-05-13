@@ -1,0 +1,15 @@
+{
+  "folders": [
+    {
+      "name": "wp-content — (Remote)",
+      "uri": "ftp://livebig/"
+    },
+    {
+      "path": "."
+    },
+    {
+      "path": "/home/johannes/Local Sites/arriba/app/public/wp-content/plugins/buildy-wp/resources/views"
+    }
+  ],
+  "settings": {}
+}

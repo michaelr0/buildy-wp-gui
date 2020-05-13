@@ -1,25 +1,15 @@
 <template>
-  <module-base>
-    <settings-modal :component="component">     
-      <Button name="cta" />
-    </settings-modal> 
-  </module-base>
+  <settings-modal>
+    <Button name="button" path="content.button" />
+  </settings-modal>
 </template>
 <script>
-import ModuleBase from '../components/shared/ModuleBase';
-import topLevelComponents from '../mixins/topLevelComponents';
-import SettingsModal from '../components/shared/SettingsModal';
-import AttributeEditor from '../components/shared/AttributeEditor';
-import Button from '../components/shared/Button';
-
-  export default { 
-    name: 'button-module', 
-    components: {
-      ModuleBase,
-      SettingsModal,
-      AttributeEditor,
-      Button
-    },  
-    mixins: [topLevelComponents]
+export default {
+  name: "button-module",
+  data: function() {
+    return {
+      icon: "CoffeeIcon"
+    };
   }
+};
 </script>

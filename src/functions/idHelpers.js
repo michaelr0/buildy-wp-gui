@@ -9,6 +9,9 @@ export const generateModuleID = (type) => {
 
 export const recursifyID = (array) => {
     array.id = generateModuleID(array.type);
+    if (!Array.isArray(array.content)) {
+        return false
+    }
     array.content.forEach((el) => {
         if (el.id || el.id === '') {
             el.id = generateModuleID(el.type);

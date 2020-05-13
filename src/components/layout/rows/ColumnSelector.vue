@@ -1,5 +1,5 @@
 <template>
-    <modal :name="name" :scrollable="true" :height="'auto'" @opened="disableDrag(true)" @closed="disableDrag(false)">
+    <modal :name="name" :scrollable="true" :height="'auto'">
       <x-icon @click="$modal.hide(name)" class="text-gray-800 cursor-pointer inset-y-0 m-2 absolute right-0" size="1.5x"></x-icon>
       <div class="p-6 bg-gray-400 text-gray-800">
         <span class="block text-2xl text-gray-800 mb-4">Choose column layout:</span> 
@@ -15,7 +15,6 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions } from 'vuex'
 import { Module } from '../../../classes/ModuleClass'
 import { XIcon } from 'vue-feather-icons';
 
@@ -41,7 +40,6 @@ export default {
         }
     },
     methods: {
-        ...mapActions(['disableDrag','changeColumnLayout']),
         changeLayout(layout) {
             const newLayout = []
 
@@ -67,11 +65,30 @@ export default {
                 newLayout.push(newCol)
             })
 
+            const oldModules = [];
+            const colCount = this.parent_array.length
+
+            if (colCount) {
+                this.parent_array.forEach(component => {
+                    if(component.content.length) {
+                        component.content.forEach(module => {
+                            oldModules.push(module)
+                        });
+                        component.content = []
+                    }
+                })    
+            }
+
+            // Change column layout
+            this.parent_array.splice(0, colCount, ...newLayout);
+            // Add old modules to new layout
+            this.parent_array[0].content = oldModules
+
             // Send this off to vuex for mutatin'
-            this.changeColumnLayout({    
-                id: this.component.id,            
-                newLayout: newLayout
-            })        
+            // this.changeColumnLayout({    
+            //     id: this.component.id,            
+            //     newLayout: newLayout
+            // })        
         },
         gridConversion(string) {
             // Turn the clicked string into an array at each space e,g ["6", "6"]
@@ -89,6 +106,7 @@ export default {
     },
     props: {
         name: String,
+        parent_array: Array,
         component: Object
     },
 } 

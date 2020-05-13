@@ -1,157 +1,141 @@
 <template>
-  <div :id="component.id" class="section bg-gray-400 mb-5 flex flex-wrap" :class="[settingsOpen ? 'highlight-section' : '']">
-    <div class="settings-bar section-settings px-2 bg-blue-500 items-stretch">
-      <ul class="list-unstyled flex flex-col h-full">
-        <li class="py-2 flex items-center">
-          <menu-icon  @click="openSectionSettings" class="text-white cursor-pointer" size="1.5x"></menu-icon>
-        </li>
-        <li class="py-2 flex items-center">
-          <copy-icon @click="cloneSectionClick" class="text-white cursor-pointer" size="1.5x"></copy-icon>
-        </li>
-        <li class="py-2 flex items-center">
-          <trash-2-icon @click="deleteSectionClick" class="text-white cursor-pointer" size="1.5x"></trash-2-icon>
-        </li>
-      </ul>
-    </div>
+  <div
+    :id="component.id"
+    class="section bg-gray-400 mb-5 flex flex-wrap"
+    :class="[settingsOpen ? 'highlight-section' : '']"
+  >
+    <module-settings-bar
+      :parent_array="parent_array"
+      direction="col"
+    ></module-settings-bar>
 
-    <settings-modal :component="component">
-      <toggle-switch label="Boxed layout" slot="options" path="options.layout_boxed" :status="component.options.layout_boxed"></toggle-switch>  
-    </settings-modal> 
+    <settings-modal>
+      <toggle-switch
+        label="Boxed layout"
+        path="options.layout_boxed"
+        :status="component.options && component.options.layout_boxed"
+      ></toggle-switch>
+      <toggle-switch
+        label="Inner Container?"
+        path="options.inner_container"
+        :status="component.options && component.options.inner_container"
+      ></toggle-switch>
+    </settings-modal>
 
     <div class="flex-1 flex-col">
       <draggable :list="dragArray" v-bind="dragOptions">
-        <transition-group name="fadeHeight" tag="div" class="section-inner p-6 pb-2 flex-col flex-wrap flex-1">
-          <template v-for="(component, index) in dragArray">
+        <transition-group
+          name="fadeHeight"
+          tag="div"
+          class="section-inner p-6 pb-2 flex-col flex-wrap flex-1"
+        >
+          <template v-for="(row, index) in dragArray">
             <row-module
-              v-if="component.type === 'row-module'" 
-              :class="[(rowCount > 1) && index !== (rowCount -1) ? 'mb-6' : 'mb-0']" 
-              :colcount="columns(component.content)" 
-              :key="component.id" 
-              :components="component.content" 
-              :parent_id="selfID" 
-              :component="component"></row-module>  
-              <hr-module :key="component.id" :component="component" :parent_id="selfID" v-else />
+              v-if="row.type === 'row-module'"
+              :class="[
+                rowCount > 1 && index !== rowCount - 1 ? 'mb-6' : 'mb-0'
+              ]"
+              :key="row.id"
+              :components="row.content"
+              :parent_array="component.content"
+              :component="row"
+            />
+            <module-base
+              v-else
+              :key="row.id"
+              :parent_array="component.content"
+              :component="row"
+            />
           </template>
         </transition-group>
       </draggable>
       <div class="p-4 pt-0 pb-2 text-center empty-controls flex justify-center">
-        <a @click.prevent="addRowClick" class="flex w-auto mx-6 items-center justify-center" href="#"><plus-circle-icon class="mr-2"></plus-circle-icon> Add empty row</a>  
-        <a @click.prevent="addHRClick" class="flex w-auto items-center justify-center" href="#"><plus-circle-icon class="mr-2"></plus-circle-icon> Add HR</a>  
+        <a
+          @click.prevent="addRow"
+          class="flex w-auto mx-6 items-center justify-center"
+          href="#"
+          ><plus-circle-icon class="mr-2"></plus-circle-icon> Add empty row</a
+        >
+        <a
+          @click.prevent="addHR"
+          class="flex w-auto mx-6 items-center justify-center"
+          href="#"
+          ><plus-circle-icon class="mr-2"></plus-circle-icon> Add Row
+          Separator</a
+        >
       </div>
     </div>
   </div>
 </template>
 <script>
-import { mapState, mapGetters, mapActions } from 'vuex'
-import { PlusCircleIcon, MenuIcon, Trash2Icon, CopyIcon } from 'vue-feather-icons';
-import RowModule from '../layout/rows/RowModule';
-import HRModule from '../HRModule';
-import draggable from 'vuedraggable';
-import SettingsModal from '../shared/SettingsModal';
-import ToggleSwitch from '../shared/ToggleSwitch';
-import InlineStyleEditor from '../../components/shared/InlineStyleEditor';
-import AttributeEditor from '../shared/AttributeEditor';
-import {EventBus} from '../../eventBus'
-  export default { 
-    name: 'section-module',
-    data: function() {
+import { mapGetters } from "vuex";
+import { PlusCircleIcon } from "vue-feather-icons";
+import draggable from "vuedraggable";
+import { Module } from "../../classes/ModuleClass";
+
+export default {
+  name: "section-module",
+  data: function() {
+    return {
+      settingsOpen: false,
+      dragArray: this.component.content,
+      hovering: false,
+      dragging: false
+    };
+  },
+  computed: {
+    ...mapGetters(["dragDisabled"]),
+    dragOptions() {
       return {
-        defaultColor: '#ffffff',
-        settingsOpen: false,
-        dragArray: this.components,
-        hovering: false,
-      }
+        group: "rows",
+        ghostClass: "ghost",
+        disabled: this.dragDisabled
+      };
     },
-    provide() {
-        return {
-            component: this.component,
-            parent_id: this.parent_id
-        }
+    rowCount() {
+      return this.dragArray.length;
+    }
+  },
+  components: {
+    draggable,
+    PlusCircleIcon
+  },
+  methods: {
+    openSectionSettings() {
+      this.$modal.show(this.component.id);
     },
-    computed: {
-      ...mapGetters(['dragging']),
-      dragOptions() {
-        return {
-          group: "rows",
-          ghostClass: "ghost",
-          disabled: this.dragging
-        }
-      },
-      selfID() {
-        return this.component.id
-      },
-      rowCount() {
-        return this.dragArray.length;
-      },
+    addRow() {
+      let newObj = new Module();
+      let newComponent = newObj.newRow();
+      this.component.content.push(newComponent);
     },
-    components: {
-      SettingsModal,
-      ToggleSwitch,
-      InlineStyleEditor,
-      AttributeEditor,
-      draggable,
-      RowModule,
-      "hr-module": HRModule,
-      PlusCircleIcon,
-      MenuIcon,
-      Trash2Icon,
-      CopyIcon,
-    },
-    methods: {
-      ...mapActions(['cloneSection', 'deleteSection', 'addRow', 'addHR']),
-      cloneSectionClick() {
-        this.cloneSection({
-          parent_id: this.parent_id,
-          component_id: this.component.id, 
-        })
-      },
-      deleteSectionClick() {
-        this.deleteSection({
-          component_id: this.component.id, 
-        })
-      },
-      openSectionSettings() {
-        this.$modal.show(this.component.id);
-      },
-      addRowClick(){
-        this.addRow({          
-          parent_id: this.component.id
-        })
-      },
-      addHRClick(){
-        this.addHR({          
-          parent_id: this.component.id
-        })
-      },
-      columns(component) {
-        var totalCols = 0;
-        component.forEach(col => {
-          totalCols += col.options.colspan;
-        })
-        return totalCols;
-      }    
-    },
-    provide() {
-      return {
-        section_index: this.section_index,
-        component: this.component,
-        row_id: null,
-        parent_id: null
-      }
-    },
-    props: {
-      section_index: Number,
-      component: Object,
-      components: Array,
-      componentType: String,
-    },
+    addHR() {
+      let newObj = new Module({ type: "hr-module" });
+      this.component.content.push(newObj.newModule());
+    }
+  },
+  props: {
+    component: Object,
+    parent_array: Array
+  },
+  provide() {
+    return {
+      component: this.component
+    };
   }
+};
 </script>
 
 <style scoped>
 .section {
   transition: all 0.2s;
 }
+
+/* For components directly inside sections (HR) */
+.component-module {
+  @apply mb-5;
+}
+
 .highlight-section {
   animation-name: colorPulse;
   animation-duration: 3s;
