@@ -70,15 +70,15 @@ export default {
         showBackground: false
       },
       colors: [
-        "red",
-        "blue",
-        "pink",
-        "orange",
-        "cyan",
-        "lightgray",
-        "gray",
-        "white",
-        "black"
+        "primary",
+        "secondary",
+        "tertiary",
+        "quaternary",
+        "quinary",
+        "senary",
+        "septenary",
+        "octonary",
+        "nonary"
       ]
     };
   },
